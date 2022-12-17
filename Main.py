@@ -1,7 +1,7 @@
 # Work done by : Boufar Tarek & Chouaha Bela
 import copy as co
 import random
-from statistics import stdev
+from statistics import stdev, mean
 from tkinter import Tk, Canvas, Scrollbar
 
 Height = 1500
@@ -143,21 +143,77 @@ def marche_aleatoire(sol):
     return bestSol, minCout
 
 
+def climber_best_echange(sol):
+    solution = co.copy(sol)
+    Local_solution = co.copy(sol)
+
+    # Taille de la solution
+    N = len(solution)
+    cout = cout_Max(solution)[0]
+    rechercher = True
+
+    # Tant qu'on n'as pas trouvé un minimum local
+    while rechercher:
+        rechercher = False
+        # Le nombre de voisins = (n² - n) / 2 :
+        for i in range(1, N):
+            for j in range(i+1, N+1):
+                p1 = i
+                p2 = j
+                voisin = echange(solution, p1, p2)
+                coutVoisin = cout_Max(voisin)[0]
+                if cout > coutVoisin:
+                    # Trouvé a voisin optimal
+                    rechercher = True
+                    cout = coutVoisin
+                    Local_solution = co.copy(voisin)
+        solution = Local_solution
+    return cout, solution
+
+def climber_best_insere(sol):
+    solution = co.copy(sol)
+    Local_solution = co.copy(sol)
+
+    # Taille de la solution
+    N = len(solution)
+    cout = cout_Max(solution)[0]
+    rechercher = True
+
+    # Tant qu'on n'as pas trouvé un minimum local
+    while rechercher:
+        rechercher = False
+        # Le nombre de voisins = (n² - n) / 2 :
+        for i in range(1, N):
+            for j in range(i + 1, N + 1):
+                p1 = i
+                p2 = j
+                voisin = insere(solution, p1, p2)
+                coutVoisin = cout_Max(voisin)[0]
+                if cout > coutVoisin:
+                    # A Trouvé a voisin optimal
+                    rechercher = True
+                    cout = coutVoisin
+                    Local_solution = co.copy(voisin)
+        solution = Local_solution
+    return cout, solution
+
+
 # endregion
 
 
 def PROG():
-    AfficherSolution(rand_sol, rand_Cout[1])
+    AfficherSolution(solution, cout_Max(solution)[1])
 
 
 data = read_txt_data()
 [N, M, S, T, D] = data_to_matrix(data)
 [solution, rN, rM] = generate_random_solution(N, M, D)
-rand_sol, rand_Cout = marche_aleatoire(solution)
-print("Cout Marche aléatoire : ", rand_Cout[0])
+#rand_sol, rand_Cout = marche_aleatoire(solution)
+print("Cout solution aléatoire et valide : ", cout_Max(solution)[0])
 
 
 # Question7 : Tester marche random avec Echange & Insert
+"""
 positions = list(range(1, N+1))
 list_voisin_echange = list()
 list_voisin_insert = list()
@@ -171,17 +227,35 @@ for i in range(nbrVoisins):
     list_voisin_echange.append(cout_Max(voisin_echange)[0])
     list_voisin_insert.append(cout_Max(voisin_insert)[0])
 
-
 # Calculer l'ecart moyen de fitness
 ecart_echange_echange = stdev(list_voisin_echange)
 ecart_echange_insert = stdev(list_voisin_insert)
 print("Ecart moyen de fitness pour l'opérateur de voisinage - Echange : ", ecart_echange_echange)
 print("Ecart moyen de fitness pour l'opérateur de voisinage - Insert : ", ecart_echange_insert)
+"""
+
+# Question8 : Algorithme de Descente
+listLocalEchange = list()
+listLocalInsere = list()
+for i in range(100):
+    listLocalEchange.append(climber_best_echange(solution)[0])
+    listLocalInsere.append(climber_best_insere(solution)[0])
+    [solution, rN, rM] = generate_random_solution(N, M, D)
+
+print('\nOpérateur - Echange - 100 itérations : ')
+print('Meilleur solution : ', min(listLocalEchange))
+print('Moyenne de solutions : ', mean(listLocalEchange))
+print('')
+print('Opérateur - Insere - 100 itérations : ')
+print('Meilleur solution : ', min(listLocalInsere))
+print('Moyenne de solutions : ', mean(listLocalInsere))
+
 
 
 
 
 # region Fenetre
+"""
 Mafenetre = Tk()
 Mafenetre.geometry(str(Height) + "x" + str(Width))
 scrollbar_h = Scrollbar(Mafenetre, orient='horizontal')
@@ -200,6 +274,7 @@ scrollbar_v.config(command = canvas.yview)
 
 Mafenetre.after(100, PROG)
 Mafenetre.mainloop()
+"""
 # endregion
 
 # endregion
