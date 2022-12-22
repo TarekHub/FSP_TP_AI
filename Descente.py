@@ -1,7 +1,8 @@
 # Question8 : Algorithme de Descente
 import numpy as np
-from Functions import climber_best_echange, climber_best_insere, cout_max, generate_solution, data_to_matrix, \
-    read_txt_data, climber_first_echange, climber_first_insere
+from Functions import cout_max, generate_solution, data_to_matrix, \
+    read_txt_data, printConsole, climber_first_echange, climber_first_insere, \
+    climber_best_insere, climber_best_echange, climber_worst_echange, climber_worst_insere
 
 data = read_txt_data()
 [N, M, T, D, S] = data_to_matrix(data)
@@ -10,62 +11,68 @@ data = read_txt_data()
 _cout = cout_max(_solution)[0]
 
 size = 100
-listLocalEchange = np.empty(0)
-listLocalInsere = np.empty(0)
 
-listEvaluationLocalEchange = np.empty(0)
-listEvaluationLocalInsere = np.empty(0)
-for i in range(size):
-    # Appel de fonctions Climber Best (Echange & Insere)
-    coutBestEchange, solutionBestEchagne, evaluationBestEchange = climber_best_echange(_solution)
-    coutBestInsere, solutionBestInsere, evaluationBestInsere = climber_best_insere(_solution)
-    # Moyenne
-    listLocalEchange = np.append(listLocalEchange, coutBestEchange)
-    listLocalInsere = np.append(listLocalInsere, coutBestInsere)
-    # Evaluation
-    listEvaluationLocalEchange = np.append(listEvaluationLocalEchange, evaluationBestEchange)
-    listEvaluationLocalInsere = np.append(listEvaluationLocalInsere, evaluationBestInsere)
-    # Nouvelle Solution
-    _solution = generate_solution(N, M, D)[0]
+listLocalEchangeBest = np.empty(0)
+listLocalInsereBest = np.empty(0)
+listEvaluationLocalEchangeBest = np.empty(0)
+listEvaluationLocalInsereBest = np.empty(0)
 
-print('\n------Algorithme Best-------')
-print('\nOpérateur - Echange - 100 itérations : ')
-print('Meilleur solution : ', np.min(listLocalEchange))
-print('Moyenne de solutions : ', np.mean(listLocalEchange))
-print('Nombre moyen d évaluations', np.mean(listEvaluationLocalEchange))
-print('')
-print('Opérateur - Insere - 100 itérations : ')
-print('Meilleur solution : ', np.min(listLocalInsere))
-print('Moyenne de solutions : ', np.mean(listLocalInsere))
-print('Nombre moyen d évaluations', np.mean(listEvaluationLocalInsere))
+listLocalEchangeFirst = np.empty(0)
+listLocalInsereFirst = np.empty(0)
+listEvaluationLocalEchangeFirst = np.empty(0)
+listEvaluationLocalInsereFirst = np.empty(0)
 
-listLocalEchange = np.empty(0)
-listLocalInsere = np.empty(0)
-
-listEvaluationLocalEchange = np.empty(0)
-listEvaluationLocalInsere = np.empty(0)
+listLocalEchangeWorst = np.empty(0)
+listLocalInsereWorst = np.empty(0)
+listEvaluationLocalEchangeWorst = np.empty(0)
+listEvaluationLocalInsereWorst = np.empty(0)
 
 for i in range(size):
     # Appel de fonctions Climber First (Echange & Insere)
-    coutFirstEchange, solutionFirstEchagne, evaluationFirstEchange = climber_first_echange(_solution)
+    coutFirstEchange, solutionFirstEchange, evaluationFirstEchange = climber_first_echange(_solution)
     coutFirstInsere, solutionFirstInsere, evaluationFirstInsere = climber_first_insere(_solution)
 
     # Moyenne
-    listLocalEchange = np.append(listLocalEchange, coutFirstEchange)
-    listLocalInsere= np.append(listLocalInsere, coutFirstInsere)
-    # Echange
-    listEvaluationLocalEchange = np.append(listEvaluationLocalEchange, evaluationFirstEchange)
-    listEvaluationLocalInsere = np.append(listEvaluationLocalInsere, evaluationFirstInsere)
+    listLocalEchangeFirst = np.append(listLocalEchangeFirst, coutFirstEchange)
+    listLocalInsereFirst = np.append(listLocalInsereFirst, coutFirstInsere)
+    # Evaluation
+    listEvaluationLocalEchangeFirst = np.append(listEvaluationLocalEchangeFirst, evaluationFirstEchange)
+    listEvaluationLocalInsereFirst = np.append(listEvaluationLocalInsereFirst, evaluationFirstInsere)
+
+    # Appel de fonctions Climber Best (Echange & Insere)
+    coutBestEchange, solutionBestEchange, evaluationBestEchange = climber_best_echange(_solution)
+    coutBestInsere, solutionBestInsere, evaluationBestInsere = climber_best_insere(_solution)
+    # Moyenne
+    listLocalEchangeBest = np.append(listLocalEchangeBest, coutBestEchange)
+    listLocalInsereBest = np.append(listLocalInsereBest, coutBestInsere)
+    # Evaluation
+    listEvaluationLocalEchangeBest = np.append(listEvaluationLocalEchangeBest, evaluationBestEchange)
+    listEvaluationLocalInsereBest = np.append(listEvaluationLocalInsereBest, evaluationBestInsere)
+
+
+    # Appel de fonctions Climber Worst (Echange & Insere)
+    coutWorstEchange, solutionWorstEchange, evaluationWorstEchange = climber_worst_echange(_solution)
+    coutWorstInsere, solutionWorstInsere, evaluationWorstInsere = climber_worst_insere(_solution)
+    # Moyenne
+    listLocalEchangeWorst = np.append(listLocalEchangeWorst, coutWorstEchange)
+    listLocalInsereWorst = np.append(listLocalInsereWorst, coutWorstInsere)
+    # Evaluation
+    listEvaluationLocalEchangeWorst = np.append(listEvaluationLocalEchangeWorst, evaluationWorstEchange)
+    listEvaluationLocalInsereWorst = np.append(listEvaluationLocalInsereWorst, evaluationWorstInsere)
+
     # Nouvelle Solution
     _solution = generate_solution(N, M, D)[0]
 
+    print(i)
+
 print('\n------Algorithme First-------')
-print('\nOpérateur - Echange - 100 itérations : ')
-print('Meilleur solution : ', np.min(listLocalEchange))
-print('Moyenne de solutions : ', np.mean(listLocalEchange))
-print('Nombre moyen d évaluations', np.mean(listEvaluationLocalEchange))
-print('')
-print('Opérateur - Insere - 100 itérations : ')
-print('Meilleur solution : ', np.min(listLocalInsere))
-print('Moyenne de solutions : ', np.mean(listLocalInsere))
-print('Nombre moyen d évaluations', np.mean(listEvaluationLocalInsere))
+printConsole('Echange', listLocalEchangeFirst, listEvaluationLocalEchangeFirst)
+printConsole('Insere', listLocalInsereFirst, listEvaluationLocalInsereFirst)
+
+print('\n------Algorithme Best-------')
+printConsole('Echange', listLocalEchangeBest, listEvaluationLocalEchangeBest)
+printConsole('Insere', listLocalInsereBest, listEvaluationLocalInsereBest)
+
+print('\n------Algorithme Worst-------')
+printConsole('Echange', listLocalEchangeWorst, listEvaluationLocalEchangeWorst)
+printConsole('Insere', listLocalInsereWorst, listEvaluationLocalInsereWorst)

@@ -110,6 +110,7 @@ def marche_aleatoire(solution):
     return bestSol, minCout
 
 
+# Strict
 def climber_best_echange(sol):
     solution = co.copy(sol)
     localSolution = co.copy(sol)
@@ -128,7 +129,7 @@ def climber_best_echange(sol):
                 voisin = echange(solution, i, j)
                 coutVoisin = cout_max(voisin)[0]
                 if cout > coutVoisin:
-                    # Trouvé a voisin optimal
+                    # Trouvé a voisin améliorant
                     rechercher = True
                     cout = coutVoisin
                     localSolution = co.copy(voisin)
@@ -144,20 +145,28 @@ def climber_best_insere(sol):
     cout = cout_max(solution)[0]
     rechercher = True
     evaluation = 0
-    # Tant qu'on trouve un minimum local
+    # Tant qu'on trouve un voisin améliorant
     while rechercher:
         rechercher = False
-        # Le nombre de voisins = (n² - n) / 2 :
-        for i in range(1, n):
-            for j in range(i + 1, n + 1):
-                evaluation += 1
-                voisin = insere(solution, i, j)
-                coutVoisin = cout_max(voisin)[0]
-                if cout > coutVoisin:
-                    # Trouvé a voisin optimal
-                    rechercher = True
-                    cout = coutVoisin
-                    localSolution = co.copy(voisin)
+        # Le nombre de voisins = n² - 2n + 1 :
+        for i in range(1, n + 1):
+            j = 1
+            while j < n + 1:
+                if j == i or j == i - 1:
+                    j += 1
+                # j vérifie la contrainte de coordonnées(i, j) pour insertion
+                else:
+                    evaluation += 1
+                    voisin = insere(solution, i, j)
+                    coutVoisin = cout_max(voisin)[0]
+                    if cout > coutVoisin:
+                        # a trouvé un voisin améliorant
+                        rechercher = True
+                        cout = coutVoisin
+                        localSolution = co.copy(voisin)
+                    # incrémenter j
+                    j += 1
+        # redéfinir solution pour le meilleur (best) voisin améliorant
         solution = localSolution
     return cout, solution, evaluation
 
@@ -192,6 +201,7 @@ def climber_first_echange(sol):
             break
     return cout, solution, evaluation
 
+
 def climber_first_insere(sol):
     solution = co.copy(sol)
     # Taille de la solution
@@ -202,22 +212,303 @@ def climber_first_insere(sol):
     # Tant qu'on trouve un minimum local
     while rechercher:
         rechercher = False
-        # Le nombre de voisins = (n² - n) / 2 :
-        for i in range(1, n):
-            for j in range(i + 1, n + 1):
-                evaluation += 1
-                voisin = insere(solution, i, j)
-                coutVoisin = cout_max(voisin)[0]
-                if cout > coutVoisin:
-                    # On trouve un voisin optimal
-                    rechercher = True
-                    cout = coutVoisin
-                    solution = co.copy(voisin)
-                    # On quite les 2 boucles
-                    break
+        # Le nombre de voisins = n² - 2n + 1 :
+        for i in range(1, n + 1):
+            j = 1
+            while j < n + 1:
+                if j == i or j == i - 1:
+                    j += 1
+                # j vérifie la contrainte de coordonnées(i, j) pour insertion
+                else:
+                    evaluation += 1
+                    voisin = insere(solution, i, j)
+                    coutVoisin = cout_max(voisin)[0]
+                    if cout > coutVoisin:
+                        # On trouve un voisin améliorant
+                        rechercher = True
+                        cout = coutVoisin
+                        solution = co.copy(voisin)
+                        # On quite les 2 boucles (while et for)
+                        break
+                    # incrémenter j
+                    j += 1
             else:
                 # Continue if the inner loop wasn't broken.
                 continue
                 # Inner loop was broken, break the outer.
             break
     return cout, solution, evaluation
+
+
+def climber_worst_echange(sol):
+    solution = co.copy(sol)
+    localSolution = co.copy(sol)
+    n = len(solution)
+    cout = cout_max(solution)[0]
+    # Init : le plut petit possible
+    coutWorstAmeliorant = 0
+    rechercher = True
+    evaluation = 0
+    # Tant qu'on trouve un minimum local
+    while rechercher:
+        rechercher = False
+        # Le nombre de voisins = (n² - n) / 2 :
+        for i in range(1, n):
+            for j in range(i + 1, n + 1):
+                evaluation += 1
+                voisin = echange(solution, i, j)
+                coutVoisin = cout_max(voisin)[0]
+                if cout > coutVoisin > coutWorstAmeliorant:
+                    # Trouver un voisin moin bon améliorant
+                    rechercher = True
+                    coutWorstAmeliorant = coutVoisin
+                    localSolution = co.copy(voisin)
+        # redéfinir le voisin le moin bon
+        solution = localSolution
+        cout = cout_max(solution)[0]
+        coutWorstAmeliorant = 0
+    return cout_max(solution)[0], solution, evaluation
+
+
+def climber_worst_insere(sol):
+    solution = co.copy(sol)
+    worstSolution = co.copy(sol)
+    n = len(solution)
+    cout = cout_max(solution)[0]
+    # Init : le plut petit possible
+    coutWorst = 0
+    evaluation = 0
+    rechercher = True
+    # Tant qu'on trouve un voisin améliorant
+    while rechercher:
+        rechercher = False
+        # Le nombre de voisins = n² - 2n + 1 :
+        for i in range(1, n + 1):
+            j = 1
+            while j < n + 1:
+                if j == i or j == i - 1:
+                    j += 1
+                else:
+                    evaluation += 1
+                    voisin = insere(solution, i, j)
+                    coutVoisin = cout_max(voisin)[0]
+                    if cout > coutVoisin > coutWorst:
+                        # Trouver un voisin moin bon améliorant
+                        rechercher = True
+                        coutWorst = coutVoisin
+                        worstSolution = co.copy(voisin)
+                    # incrémenter j
+                    j += 1
+        # redéfinir la solution égale au voisin le moin bon
+        solution = worstSolution
+        cout = cout_max(solution)[0]
+        coutWorst = 0
+    return cout_max(solution)[0], solution, evaluation
+
+
+# Non-Strict
+def climber_bestNS_echange(sol):
+    solution = co.copy(sol)
+    localSolution = co.copy(sol)
+    # precedenteSolution = co.copy(sol)
+    # Taille de la solution
+    n = len(solution)
+    cout = cout_max(solution)[0]
+    evaluation = 0
+    rechercher = True
+    # Après 1 M évaluation
+    while rechercher and evaluation < 1000000:
+        rechercher = False
+        # Le nombre de voisins = (n² - n) / 2 :
+        for i in range(1, n):
+            for j in range(i + 1, n + 1):
+                evaluation += 1
+                voisin = echange(solution, i, j)
+                """
+                if np.array_equal(voisin, precedenteSolution):
+                    continue
+                """
+                coutVoisin = cout_max(voisin)[0]
+                if cout >= coutVoisin:
+                    # A trouvé un voisin améliorant non-strict
+                    rechercher = True
+                    cout = coutVoisin
+                    localSolution = co.copy(voisin)
+        # precedenteSolution = solution
+        solution = localSolution
+        print(evaluation, cout)
+    return cout, solution, evaluation
+
+
+def climber_bestNS_insere(sol):
+    solution = co.copy(sol)
+    localSolution = co.copy(sol)
+    # Taille de la solution
+    n = len(solution)
+    cout = cout_max(solution)[0]
+    rechercher = True
+    evaluation = 0
+    # Tant qu'on trouve un voisin améliorant
+    while rechercher:
+        rechercher = False
+        # Le nombre de voisins = n² - 2n + 1 :
+        for i in range(1, n + 1):
+            j = 1
+            while j < n + 1:
+                if j == i or j == i - 1:
+                    j += 1
+                # j vérifie la contrainte de coordonnées(i, j) pour insertion
+                else:
+                    evaluation += 1
+                    voisin = insere(solution, i, j)
+                    coutVoisin = cout_max(voisin)[0]
+                    if cout >= coutVoisin:
+                        # a trouvé un voisin améliorant
+                        rechercher = True
+                        cout = coutVoisin
+                        localSolution = co.copy(voisin)
+                    # incrémenter j
+                    j += 1
+        # redéfinir solution pour le meilleur (best) voisin améliorant
+        solution = localSolution
+        print(evaluation, cout)
+    return cout, solution, evaluation
+
+
+def climber_firstNS_echange(sol):
+    solution = co.copy(sol)
+    # Taille de la solution
+    n = len(solution)
+    # Nombre de voisins pour l echange
+    N = int(((n ** 2) - n) / 2)
+    cout = cout_max(solution)[0]
+    rechercher = True
+    evaluation = 0
+    # Tant qu'on trouve un minimum local
+    while rechercher and evaluation < 100000:
+        print(evaluation, ' - ', cout)
+        rechercher = False
+        # Le nombre de voisins = (n² - n) / 2 :
+        # Générer tous les voisins
+        k = 0
+        listVoisins = np.zeros([N, n, len(sol[0])])
+        for i in range(1, n):
+            for j in range(i + 1, n + 1):
+                voisin = echange(solution, i, j)
+                listVoisins[k] = voisin
+                k += 1
+        C = N
+        for i in range(C):
+            # Choisir un voisin aléatoire
+            evaluation += 1
+            idx = np.random.randint(C)
+            voisinAleatoire = listVoisins[idx]
+            s = listVoisins.shape[0]
+            coutVoisin = cout_max(voisinAleatoire)[0]
+            if cout >= coutVoisin:
+                rechercher = True
+                cout = coutVoisin
+                solution = co.copy(voisinAleatoire)
+                break
+            # Supprimer l element de la liste des voisins
+            else:
+                listVoisins = np.delete(listVoisins, idx, axis=0)
+                C = C - 1
+    return cout, solution, evaluation
+
+
+def climber_firstNS_insere(sol):
+    solution = co.copy(sol)
+    # Taille de la solution
+    n = len(solution)
+    # Le nombre de voisins pour l insertion = (n² - 2n + 1)
+    N = int(((n ** 2) - 2 * n + 1))
+    cout = cout_max(solution)[0]
+    rechercher = True
+    evaluation = 0
+    # Tant qu'on trouve un minimum local
+    while rechercher and evaluation < 100000:
+        print(evaluation, ' - ', cout)
+        rechercher = False
+        # Le nombre de voisins = (n² - 2n + 1)
+        # Générer tous les voisins
+        k = 0
+        listVoisins = np.zeros([N, n, len(sol[0])])
+        for i in range(1, n + 1):
+            j = 1
+            while j < n + 1:
+                if j == i or j == i - 1:
+                    j += 1
+                else:
+                    voisin = insere(solution, i, j)
+                    listVoisins[k] = voisin
+                    k += 1
+                    j += 1
+        C = N
+        for i in range(C):
+            # Choisir un voisin aléatoire
+            evaluation += 1
+            idx = np.random.randint(C)
+            voisinAleatoire = listVoisins[idx]
+            s = listVoisins.shape[0]
+            coutVoisin = cout_max(voisinAleatoire)[0]
+            if cout >= coutVoisin:
+                rechercher = True
+                cout = coutVoisin
+                solution = co.copy(voisinAleatoire)
+                break
+            # Supprimer l element de la liste des voisins
+            else:
+                listVoisins = np.delete(listVoisins, idx, axis=0)
+                C = C - 1
+    return cout, solution, evaluation
+
+
+
+def climber_NS_echange(sol):
+    solution = co.copy(sol)
+    # Taille de la solution
+    n = len(solution)
+    # Nombre de voisins pour l echange
+    N = int(((n ** 2) - n) / 2)
+    cout = cout_max(solution)[0]
+    rechercher = True
+    evaluation = 0
+    # Tant qu'on trouve un minimum local
+    while rechercher and evaluation < 100000:
+        print(evaluation, ' - ', cout)
+        rechercher = False
+        # Le nombre de voisins = (n² - n) / 2 :
+        # Générer tous les voisins
+        k = 0
+        listVoisins = np.zeros([N, n, len(sol[0])])
+        for i in range(1, n):
+            for j in range(i + 1, n + 1):
+                voisin = echange(solution, i, j)
+                listVoisins[k] = voisin
+                k += 1
+        C = N
+        for i in range(C):
+            # Choisir un voisin aléatoire
+            evaluation += 1
+            idx = np.random.randint(C)
+            voisinAleatoire = listVoisins[idx]
+            s = listVoisins.shape[0]
+            coutVoisin = cout_max(voisinAleatoire)[0]
+            if cout == coutVoisin:
+                rechercher = True
+                cout = coutVoisin
+                solution = co.copy(voisinAleatoire)
+                break
+            # Supprimer l element de la liste des voisins
+            else:
+                listVoisins = np.delete(listVoisins, idx, axis=0)
+                C = C - 1
+    return cout, solution, evaluation
+
+
+def printConsole(operateur, listCout, listEvaluation):
+    print('\nOpérateur -', operateur, '- 100 itérations : ')
+    print('Meilleur solution : ', np.min(listCout))
+    print('Moyenne de solutions : ', np.mean(listCout))
+    print('Nombre moyen d évaluations', np.mean(listEvaluation))
